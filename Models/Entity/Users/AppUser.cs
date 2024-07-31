@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace PayrollManagerAPI.Models.Entity
+namespace PayrollManagerAPI.Models.Entity.Users
 {
     public class AppUser : IdentityUser
     {

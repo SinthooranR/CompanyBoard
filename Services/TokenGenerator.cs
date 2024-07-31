@@ -1,11 +1,11 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using PayrollManagerAPI.Models.Entity;
+using PayrollManagerAPI.Models.Entity.Users;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 
-namespace YTCG_Deck_Builder_API.Services
+namespace PayrollManagerAPI.Services
 {
     public class TokenGenerator
     {

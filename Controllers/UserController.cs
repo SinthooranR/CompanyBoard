@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using PayrollManagerAPI.Data;
+using PayrollManagerAPI.Models.Entity.Users;
 
 namespace PayrollManagerAPI.Controllers
 {
@@ -7,6 +9,7 @@ namespace PayrollManagerAPI.Controllers
     {
 
         private readonly DataContext _context;
+        private readonly UserManager<AppUser> _userManager;
         public UserController(DataContext context)
         {
             _context = context;
@@ -18,12 +21,6 @@ namespace PayrollManagerAPI.Controllers
         {
             var dataContext = _context.Users.ToList();
             return Ok(dataContext);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> registerUser()
-        {
-            return Ok("Registered");
         }
 
 

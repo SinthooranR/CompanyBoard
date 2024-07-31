@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PayrollManagerAPI.Data;
-using PayrollManagerAPI.Models.Entity;
-using YTCG_Deck_Builder_API.Services;
+using PayrollManagerAPI.Methods;
+using PayrollManagerAPI.Models.Entity.Users;
+using PayrollManagerAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +26,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-
+builder.Services.AddScoped<Mapping>();
 builder.Services.AddScoped<TokenGenerator>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
