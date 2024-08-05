@@ -7,15 +7,16 @@ using PayrollManagerAPI.Models.Entity.Users;
 
 namespace PayrollManagerAPI.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
-    public class OwnerController : ControllerBase
+    public class EmployeeController : ControllerBase
     {
         private readonly DataContext _dataContext;
         private readonly UserManager<AppUser> _userManager;
         private readonly Mapping _mapping;
 
-        public OwnerController(DataContext dataContext, UserManager<AppUser> userManager, Mapping mapping)
+        public EmployeeController(DataContext dataContext, UserManager<AppUser> userManager, Mapping mapping, ILogger<EmployeeController> logger)
         {
             _dataContext = dataContext;
             _userManager = userManager;
@@ -23,28 +24,42 @@ namespace PayrollManagerAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> getOwners()
+        public IActionResult getEmployees()
         {
-            var owners = _dataContext.Owners.ToList();
-            return Ok(owners);
+            var employees = _dataContext.Employees.ToList();
+            return Ok(employees);
         }
 
-
         [HttpPost]
-        public async Task<IActionResult> registerOwner([FromBody] OwnerCreateDto ownerDto)
+        public async Task<IActionResult> registerEmployee([FromBody] EmployeeRegisterDto employeeDto)
         {
             try
             {
-                var checkEmailExists = _dataContext.Users.Where(o => o.Email == ownerDto.Email).ToList();
+
+                var checkOwner = _dataContext.Owners.Where(o => o.Id == employeeDto.OwnerId).FirstOrDefault();
+
+                if (checkOwner == null || checkOwner.Roles.Contains("Admin"))
+                {
+                    ModelState.AddModelError("", "Invalid Owner");
+                }
+
+                var checkCompany = _dataContext.Companies.Where(c => c.Id == employeeDto.CompanyId).FirstOrDefault();
+
+                if (checkCompany == null)
+                {
+                    ModelState.AddModelError("", "Company doesn't exist");
+                }
+
+                var checkEmailExists = _dataContext.Users.Where(u => u.Email == employeeDto.Email).ToList();
 
                 if (checkEmailExists.Any())
                 {
                     ModelState.AddModelError("", "Email already exists, use another one");
                 }
 
-                var newOwner = _mapping.OwnerDtotoMain(ownerDto);
+                var newEmployee = _mapping.EmployeeDtoToMain(employeeDto);
 
-                var result = await _userManager.CreateAsync(newOwner, ownerDto.Password);
+                var result = await _userManager.CreateAsync(newEmployee, employeeDto.Password);
 
                 if (result.Succeeded)
                 {
@@ -60,6 +75,5 @@ namespace PayrollManagerAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
-
     }
 }

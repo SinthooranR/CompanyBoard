@@ -5,6 +5,8 @@ namespace PayrollManagerAPI.Models.Entity.EmployeeInfo
     public class Vacation
     {
         public int Id { get; set; }
+
+        public bool isApproved { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string Reason { get; set; }
