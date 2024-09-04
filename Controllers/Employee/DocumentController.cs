@@ -12,12 +12,14 @@ namespace PayrollManagerAPI.Controllers.Employee
     {
         private readonly DataContext _dataContext;
         private readonly UserManager<AppUser> _userManager;
-        private readonly Mapping _mapping;
-        public DocumentController(DataContext dataContext, UserManager<AppUser> userManager, Mapping mapping)
+        private readonly CreateMapping _createMapping;
+        private readonly UpdateMapping _updateMapping;
+        public DocumentController(DataContext dataContext, UserManager<AppUser> userManager, CreateMapping createMapping, UpdateMapping updateMapping)
         {
             _dataContext = dataContext;
             _userManager = userManager;
-            _mapping = mapping;
+            _createMapping = createMapping;
+            _updateMapping = updateMapping;
         }
 
     }

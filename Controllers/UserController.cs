@@ -45,6 +45,11 @@ namespace PayrollManagerAPI.Controllers
                     ModelState.AddModelError("", "Email not found, please register");
                 }
 
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
                 var result = await _signInManager.PasswordSignInAsync(existingUser.UserName, userLoginDto.Password, false, false);
 
                 if (result.Succeeded)

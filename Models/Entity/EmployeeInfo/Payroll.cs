@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PayrollManagerAPI.Models.Entity.Users;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PayrollManagerAPI.Models.Entity.EmployeeInfo
 {
@@ -10,7 +11,10 @@ namespace PayrollManagerAPI.Models.Entity.EmployeeInfo
 
         [Precision(18, 2)]
         public decimal Amount { get; set; }
+        public int CompanyId { get; set; }
         public string EmployeeId { get; set; }
+
+        [ForeignKey(nameof(EmployeeId))]
         public Employee Employee { get; set; }
     }
 }

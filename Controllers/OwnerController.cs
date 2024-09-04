@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PayrollManagerAPI.Data;
 using PayrollManagerAPI.Methods;
 using PayrollManagerAPI.Models.Dto;
-using PayrollManagerAPI.Models.Entity.Users;
+using PayrollManagerAPI.Repository.Interface;
 
 namespace PayrollManagerAPI.Controllers
 {
@@ -12,17 +11,19 @@ namespace PayrollManagerAPI.Controllers
     public class OwnerController : ControllerBase
     {
         private readonly DataContext _dataContext;
-        private readonly UserManager<AppUser> _userManager;
-        private readonly Mapping _mapping;
-
-        public OwnerController(DataContext dataContext, UserManager<AppUser> userManager, Mapping mapping)
+        private readonly CreateMapping _createMapping;
+        private readonly UpdateMapping _updateMapping;
+        private readonly IUserRepository _userRepository;
+        public OwnerController(DataContext dataContext, CreateMapping createMapping, UpdateMapping updateMapping, IUserRepository userRepository)
         {
             _dataContext = dataContext;
-            _userManager = userManager;
-            _mapping = mapping;
+            _createMapping = createMapping;
+            _updateMapping = updateMapping;
+            _userRepository = userRepository;
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(OwnerCreateDto), 200)]
         public async Task<IActionResult> getOwners()
         {
             var owners = _dataContext.Owners.ToList();
@@ -35,25 +36,23 @@ namespace PayrollManagerAPI.Controllers
         {
             try
             {
-                var checkEmailExists = _dataContext.Users.Where(o => o.Email == ownerDto.Email).ToList();
+                var checkEmailExists = await _userRepository.CheckUserByEmail(ownerDto.Email);
 
-                if (checkEmailExists.Any())
+                if (checkEmailExists != null)
                 {
                     ModelState.AddModelError("", "Email already exists, use another one");
                 }
 
-                var newOwner = _mapping.OwnerDtotoMain(ownerDto);
-
-                var result = await _userManager.CreateAsync(newOwner, ownerDto.Password);
-
-                if (result.Succeeded)
+                if (!ModelState.IsValid)
                 {
-                    return Ok(result);
+                    return BadRequest(ModelState);
                 }
-                else
-                {
-                    return BadRequest(result.Errors);
-                }
+
+                var newOwner = _createMapping.OwnerDtotoMain(ownerDto);
+
+                await _userRepository.CreateOwner(newOwner, ownerDto.Password);
+
+                return Ok(newOwner);
             }
             catch (Exception ex)
             {

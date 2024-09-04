@@ -1,4 +1,6 @@
 ﻿using PayrollManagerAPI.Models.Entity.Users;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PayrollManagerAPI.Models.Entity.EmployeeInfo
 {
@@ -7,8 +9,13 @@ namespace PayrollManagerAPI.Models.Entity.EmployeeInfo
         public int Id { get; set; }
         public string DocumentType { get; set; }
         public string FilePath { get; set; }
+
+        [Required]
+        [DataType(DataType.DateTime)]
         public DateTime UploadDate { get; set; }
         public string EmployeeId { get; set; }
+
+        [ForeignKey(nameof(EmployeeId))]
         public Employee Employee { get; set; }
     }
 }

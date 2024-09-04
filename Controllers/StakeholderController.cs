@@ -13,13 +13,14 @@ namespace PayrollManagerAPI.Controllers
 
         private readonly DataContext _dataContext;
         private readonly UserManager<AppUser> _userManager;
-        private readonly Mapping _mapping;
-
-        public StakeholderController(DataContext dataContext, UserManager<AppUser> userManager, Mapping mapping, ILogger<EmployeeController> logger)
+        private readonly CreateMapping _createMapping;
+        private readonly UpdateMapping _updateMapping;
+        public StakeholderController(DataContext dataContext, UserManager<AppUser> userManager, CreateMapping createMapping, UpdateMapping updateMapping)
         {
             _dataContext = dataContext;
             _userManager = userManager;
-            _mapping = mapping;
+            _createMapping = createMapping;
+            _updateMapping = updateMapping;
         }
     }
 }

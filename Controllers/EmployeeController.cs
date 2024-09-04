@@ -4,6 +4,8 @@ using PayrollManagerAPI.Data;
 using PayrollManagerAPI.Methods;
 using PayrollManagerAPI.Models.Dto;
 using PayrollManagerAPI.Models.Entity.Users;
+using PayrollManagerAPI.Repository.Interface;
+using PayrollManagerAPI.RepositoryPattern.Interface;
 
 namespace PayrollManagerAPI.Controllers
 {
@@ -14,20 +16,63 @@ namespace PayrollManagerAPI.Controllers
     {
         private readonly DataContext _dataContext;
         private readonly UserManager<AppUser> _userManager;
-        private readonly Mapping _mapping;
+        private readonly CreateMapping _createMapping;
+        private readonly UpdateMapping _updateMapping;
+        private readonly ResponseMapping _responseMapping;
+        private readonly IUserRepository _userRepository;
+        private readonly ICompanyRepository _companyRepository;
 
-        public EmployeeController(DataContext dataContext, UserManager<AppUser> userManager, Mapping mapping, ILogger<EmployeeController> logger)
+        public EmployeeController(DataContext dataContext, UserManager<AppUser> userManager, CreateMapping createMapping, UpdateMapping updateMapping, ResponseMapping responseMapping, IUserRepository userRepository, ICompanyRepository companyRepository)
         {
             _dataContext = dataContext;
             _userManager = userManager;
-            _mapping = mapping;
+            _createMapping = createMapping;
+            _updateMapping = updateMapping;
+            _responseMapping = responseMapping;
+            _userRepository = userRepository;
+            _companyRepository = companyRepository;
         }
 
         [HttpGet]
-        public IActionResult getEmployees()
+        public async Task<IActionResult> getEmployees([FromQuery] int companyId)
         {
-            var employees = _dataContext.Employees.ToList();
-            return Ok(employees);
+            try
+            {
+                var employees = await _userRepository.GetEmployeesByCompany(companyId);
+                var newEmployees = employees.Select(e => _responseMapping.employeeResponse(e)).ToList();
+                return Ok(newEmployees);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
+        }
+
+        [HttpGet("employeeId")]
+        public async Task<IActionResult> getEmployeeById([FromQuery] string employeeId)
+        {
+            try
+            {
+                var employee = await _userRepository.GetEmployeeById(employeeId);
+
+                if (employee == null)
+                {
+                    ModelState.AddModelError("", "No Employee Data Found");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var newEmployee = _responseMapping.employeeResponse(employee);
+
+                return Ok(newEmployee);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
 
         [HttpPost]
@@ -36,39 +81,38 @@ namespace PayrollManagerAPI.Controllers
             try
             {
 
-                var checkOwner = _dataContext.Owners.Where(o => o.Id == employeeDto.OwnerId).FirstOrDefault();
+                var checkOwner = await _userRepository.CheckUserById(employeeDto.OwnerId);
 
-                if (checkOwner == null || checkOwner.Roles.Contains("Admin"))
+                if (checkOwner == null || !checkOwner.Roles.Contains("Admin"))
                 {
-                    ModelState.AddModelError("", "Invalid Owner");
+                    ModelState.AddModelError("", "Invalid Administator");
                 }
 
-                var checkCompany = _dataContext.Companies.Where(c => c.Id == employeeDto.CompanyId).FirstOrDefault();
+                var checkCompany = await _companyRepository.GetCompany(employeeDto.CompanyId);
 
                 if (checkCompany == null)
                 {
                     ModelState.AddModelError("", "Company doesn't exist");
                 }
 
-                var checkEmailExists = _dataContext.Users.Where(u => u.Email == employeeDto.Email).ToList();
-
-                if (checkEmailExists.Any())
+                var checkEmailExists = await _userRepository.CheckUserByEmail(employeeDto.Email);
+                Ok(checkEmailExists);
+                if (checkEmailExists != null)
                 {
                     ModelState.AddModelError("", "Email already exists, use another one");
                 }
 
-                var newEmployee = _mapping.EmployeeDtoToMain(employeeDto);
-
-                var result = await _userManager.CreateAsync(newEmployee, employeeDto.Password);
-
-                if (result.Succeeded)
+                if (!ModelState.IsValid)
                 {
-                    return Ok(result);
+                    return BadRequest(ModelState);
                 }
-                else
-                {
-                    return BadRequest(result.Errors);
-                }
+
+                var newEmployee = _createMapping.EmployeeDtoToMain(employeeDto);
+
+
+                await _userRepository.CreateEmployee(newEmployee, employeeDto.Password);
+
+                return Ok(newEmployee);
             }
             catch (Exception ex)
             {

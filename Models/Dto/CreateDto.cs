@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 
 namespace PayrollManagerAPI.Models.Dto
 {
@@ -57,7 +58,7 @@ namespace PayrollManagerAPI.Models.Dto
         public string Position { get; set; }
         public decimal Salary { get; set; }
         public DateTime HireDate { get; set; }
-        public int? TeamId { get; set; }
+        public int? TeamId { get; set; } = null;
         public int CompanyId { get; set; }
     }
 
@@ -65,14 +66,15 @@ namespace PayrollManagerAPI.Models.Dto
     public class TicketCreateDto
     {
         public string UserId { get; set; }
-
         public string Title { get; set; }
-
         public string Description { get; set; }
         public DateTime AssignedDate { get; set; }
         public DateTime DueDate { get; set; }
         public string Status { get; set; }
-        public string EmployeeId { get; set; }
+
+        [DefaultValue(null)]
+        public string? EmployeeId { get; set; } = null!;
+        public int CompanyId { get; set; }
 
     }
 }

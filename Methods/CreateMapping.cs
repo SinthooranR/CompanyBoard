@@ -1,14 +1,15 @@
 ﻿using PayrollManagerAPI.Data;
 using PayrollManagerAPI.Models.Dto;
 using PayrollManagerAPI.Models.Entity;
+using PayrollManagerAPI.Models.Entity.EmployeeInfo;
 using PayrollManagerAPI.Models.Entity.Users;
 
 namespace PayrollManagerAPI.Methods
 {
-    public class Mapping
+    public class CreateMapping
     {
         private readonly DataContext _dataContext;
-        public Mapping(DataContext dataContext)
+        public CreateMapping(DataContext dataContext)
         {
             _dataContext = dataContext;
         }
@@ -56,7 +57,9 @@ namespace PayrollManagerAPI.Methods
                 Benefits = [],
                 Documents = [],
                 CompanyId = employeeDto.CompanyId,
-                TeamId = employeeDto.TeamId,
+
+                //This is to deal with Swagger's default setup
+                TeamId = employeeDto.TeamId == 0 ? null : employeeDto.TeamId,
                 PerformanceReviews = [],
                 Tickets = [],
                 Vacations = [],
@@ -71,9 +74,10 @@ namespace PayrollManagerAPI.Methods
             var company = new Company()
             {
                 CompanyName = companyDto.CompanyName,
-                Owners = _dataContext.Owners.Where(o => o.Id == companyDto.OwnerId).ToList(),
+                OwnerId = companyDto.OwnerId,
                 Employees = [],
                 Stakeholders = [],
+                Tickets = [],
                 SubscriptionPlan = new SubscriptionPlan()
                 {
                     StartDate = DateTime.UtcNow,
@@ -87,5 +91,20 @@ namespace PayrollManagerAPI.Methods
             return company;
         }
 
+        public Ticket TicketDtoToMain(TicketCreateDto ticketCreateDto)
+        {
+            var ticket = new Ticket()
+            {
+                Title = ticketCreateDto.Title,
+                Description = ticketCreateDto.Description,
+                AssignedDate = ticketCreateDto.AssignedDate,
+                DueDate = ticketCreateDto.DueDate,
+                EmployeeId = ticketCreateDto.EmployeeId,
+                CompanyId = ticketCreateDto.CompanyId,
+                Status = "Todo"
+            };
+
+            return ticket;
+        }
     }
 }
