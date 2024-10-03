@@ -20,6 +20,9 @@ namespace PayrollManagerAPI.Models.Entity
         public ICollection<Stakeholder>? Stakeholders { get; set; }
         public int? SubscriptionPlanId { get; set; }
 
+        [Required]
+        public string InviteCode { get; set; }
+
         [ForeignKey(nameof(SubscriptionPlanId))]
         public SubscriptionPlan? SubscriptionPlan { get; set; }
     }

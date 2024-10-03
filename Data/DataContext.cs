@@ -13,8 +13,9 @@ namespace PayrollManagerAPI.Data
 
         }
 
-        public DbSet<Company> Companies { get; set; }
         public DbSet<Owner> Owners { get; set; }
+        public DbSet<Company> Companies { get; set; }
+        public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
         public DbSet<Stakeholder> Stakeholders { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
@@ -24,6 +25,7 @@ namespace PayrollManagerAPI.Data
         public DbSet<Benefit> Benefits { get; set; }
         public DbSet<Document> Documents { get; set; }
         public DbSet<Team> Teams { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -32,6 +32,13 @@ namespace PayrollManagerAPI.Controllers
             return Ok(dataContext);
         }
 
+        [HttpGet("id")]
+        public async Task<IActionResult> getUserById([FromQuery] string id)
+        {
+            var user = _dataContext.Users.Where(u => u.Id == id).FirstOrDefault();
+            return Ok(user);
+        }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> loginUser([FromBody] UserLoginDto userLoginDto)
@@ -50,11 +57,29 @@ namespace PayrollManagerAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
+
+                int? companyId = null;
+
+
+                if (existingUser != null && existingUser.Roles.Contains("Owner"))
+                {
+                    companyId = _dataContext.Companies.Where(c => c.OwnerId == existingUser.Id).FirstOrDefault()?.Id ?? null;
+                }
+                else
+                {
+                    companyId = _dataContext.Employees.Where(e => e.Id == existingUser.Id).FirstOrDefault()?.CompanyId;
+                }
+
+                Console.WriteLine($"COMPANY ID: {existingUser.Roles.Contains("owner")}");
+
                 var result = await _signInManager.PasswordSignInAsync(existingUser.UserName, userLoginDto.Password, false, false);
+
+
+
 
                 if (result.Succeeded)
                 {
-                    var token = _tokenGenerator.GenerateToken(existingUser);
+                    var token = _tokenGenerator.GenerateToken(existingUser, companyId);
 
                     Response.Cookies.Append("token", token, new CookieOptions
                     {

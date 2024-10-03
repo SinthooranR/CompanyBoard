@@ -4,6 +4,7 @@ using PayrollManagerAPI.Data;
 using PayrollManagerAPI.Methods;
 using PayrollManagerAPI.Models.Dto;
 using PayrollManagerAPI.Models.Entity.Users;
+using PayrollManagerAPI.RepositoryPattern.Interface;
 
 namespace PayrollManagerAPI.Controllers.Employee
 {
@@ -15,24 +16,29 @@ namespace PayrollManagerAPI.Controllers.Employee
         private readonly UserManager<AppUser> _userManager;
         private readonly CreateMapping _createMapping;
         private readonly UpdateMapping _updateMapping;
-        public TicketController(DataContext dataContext, UserManager<AppUser> userManager, CreateMapping createMapping, UpdateMapping updateMapping)
+        private readonly ICompanyRepository _companyRepository;
+        private readonly ITicketRepository _ticketRepository;
+
+        public TicketController(DataContext dataContext, UserManager<AppUser> userManager, CreateMapping createMapping, UpdateMapping updateMapping, ICompanyRepository companyRepository, ITicketRepository ticketRepository)
         {
             _dataContext = dataContext;
             _userManager = userManager;
             _createMapping = createMapping;
             _updateMapping = updateMapping;
+            _companyRepository = companyRepository;
+            _ticketRepository = ticketRepository;
         }
 
         [HttpGet]
-        public async Task<IActionResult> getTicketByEmployeeId(string employeeId)
+        public async Task<IActionResult> getTicketByCompanyId(int companyId)
         {
             try
             {
-                var user = await _userManager.FindByIdAsync(employeeId);
+                var company = await _companyRepository.GetCompany(companyId);
 
-                if (user == null)
+                if (company == null)
                 {
-                    ModelState.AddModelError("", "Employee not registered");
+                    ModelState.AddModelError("", "Company not found");
                 }
 
                 if (!ModelState.IsValid)
@@ -40,7 +46,7 @@ namespace PayrollManagerAPI.Controllers.Employee
                     return BadRequest(ModelState);
                 }
 
-                var tickets = _dataContext.Tickets.Where(t => t.EmployeeId == employeeId).ToList();
+                var tickets = await _ticketRepository.getTicketsByCompanyId(companyId);
 
                 return Ok(tickets);
             }

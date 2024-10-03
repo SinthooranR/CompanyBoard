@@ -6,6 +6,8 @@ namespace PayrollManagerAPI.RepositoryPattern.Interface
     {
         Task<Company> GetCompany(int companyId);
 
+        Task<Company> GetCompanyByInvite(string inviteCode);
+
         Task<Company> CreateCompany(Company company);
     }
 }

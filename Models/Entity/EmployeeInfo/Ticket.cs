@@ -29,5 +29,7 @@ namespace PayrollManagerAPI.Models.Entity.EmployeeInfo
 
         [ForeignKey(nameof(EmployeeId))]
         public Employee? Employee { get; set; }
+
+        public ICollection<Comment>? Comments { get; set; }
     }
 }

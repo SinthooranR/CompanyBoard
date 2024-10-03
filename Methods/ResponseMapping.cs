@@ -17,6 +17,7 @@ namespace PayrollManagerAPI.Methods
         {
             return new GetEmployee()
             {
+                Id = employee.Id,
                 AccountStatus = employee.AccountStatus,
                 Address = employee.Address,
                 City = employee.City,
@@ -32,6 +33,28 @@ namespace PayrollManagerAPI.Methods
                 Salary = employee.Salary,
                 TeamId = employee.TeamId,
                 UpdatedAt = employee.UpdatedAt,
+            };
+        }
+
+        public GetOwner ownerResponse(Owner owner)
+        {
+            return new GetOwner()
+            {
+                Id = owner.Id,
+                AccountStatus = owner.AccountStatus,
+                Address = owner.Address,
+                City = owner.City,
+                Country = owner.Country,
+                CompanyId = _dataContext.Companies.Where(c => c.OwnerId == owner.Id).FirstOrDefault()?.Id,
+                CreatedAt = owner.CreatedAt,
+                FirstName = owner.FirstName,
+                LastName = owner.LastName,
+                Phone = owner.Phone,
+                Roles = owner.Roles,
+                UpdatedAt = owner.UpdatedAt,
+                InvestmentDetails = owner.InvestmentDetails,
+                OwnershipPercentage = owner.OwnershipPercentage,
+                SubscriptionPlanId = _dataContext.SubscriptionPlans.Where(s => s.OwnerId == owner.Id).FirstOrDefault()?.Id,
             };
         }
     }

@@ -61,6 +61,18 @@ namespace PayrollManagerAPI.Controllers
         public async Task<IActionResult> getCompanyById([FromQuery] int id)
         {
             var company = await _companyRepository.GetCompany(id);
+
+
+            if (company == null)
+            {
+                ModelState.AddModelError("", "This Company doesnt exist");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             return Ok(company);
         }
     }

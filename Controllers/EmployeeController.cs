@@ -81,18 +81,11 @@ namespace PayrollManagerAPI.Controllers
             try
             {
 
-                var checkOwner = await _userRepository.CheckUserById(employeeDto.OwnerId);
-
-                if (checkOwner == null || !checkOwner.Roles.Contains("Admin"))
-                {
-                    ModelState.AddModelError("", "Invalid Administator");
-                }
-
-                var checkCompany = await _companyRepository.GetCompany(employeeDto.CompanyId);
+                var checkCompany = await _companyRepository.GetCompanyByInvite(employeeDto.InviteCode);
 
                 if (checkCompany == null)
                 {
-                    ModelState.AddModelError("", "Company doesn't exist");
+                    ModelState.AddModelError("", "Invalid Invite Code");
                 }
 
                 var checkEmailExists = await _userRepository.CheckUserByEmail(employeeDto.Email);

@@ -7,6 +7,8 @@
 
     public class GetIdentityUser
     {
+
+        public string Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Phone { get; set; }
@@ -27,5 +29,13 @@
         public int? TeamId { get; set; }
         public int CompanyId { get; set; }
 
+    }
+
+    public class GetOwner : GetIdentityUser
+    {
+        public decimal? OwnershipPercentage { get; set; }
+        public string[]? InvestmentDetails { get; set; }
+        public int? CompanyId { get; set; }
+        public int? SubscriptionPlanId { get; set; }
     }
 }

@@ -56,7 +56,7 @@ namespace PayrollManagerAPI.Methods
                 HireDate = employeeDto.HireDate,
                 Benefits = [],
                 Documents = [],
-                CompanyId = employeeDto.CompanyId,
+                CompanyId = _dataContext.Companies.Where(c => c.InviteCode == employeeDto.InviteCode).FirstOrDefault().Id,
 
                 //This is to deal with Swagger's default setup
                 TeamId = employeeDto.TeamId == 0 ? null : employeeDto.TeamId,
@@ -78,6 +78,7 @@ namespace PayrollManagerAPI.Methods
                 Employees = [],
                 Stakeholders = [],
                 Tickets = [],
+                InviteCode = Guid.NewGuid().ToString("N").Substring(0, 10),
                 SubscriptionPlan = new SubscriptionPlan()
                 {
                     StartDate = DateTime.UtcNow,

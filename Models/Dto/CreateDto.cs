@@ -46,7 +46,6 @@ namespace PayrollManagerAPI.Models.Dto
 
     public class EmployeeRegisterDto
     {
-        public string OwnerId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
@@ -59,7 +58,7 @@ namespace PayrollManagerAPI.Models.Dto
         public decimal Salary { get; set; }
         public DateTime HireDate { get; set; }
         public int? TeamId { get; set; } = null;
-        public int CompanyId { get; set; }
+        public string InviteCode { get; set; }
     }
 
 

@@ -13,21 +13,35 @@ namespace PayrollManagerAPI.Controllers
         private readonly DataContext _dataContext;
         private readonly CreateMapping _createMapping;
         private readonly UpdateMapping _updateMapping;
+        private readonly ResponseMapping _responseMapping;
         private readonly IUserRepository _userRepository;
-        public OwnerController(DataContext dataContext, CreateMapping createMapping, UpdateMapping updateMapping, IUserRepository userRepository)
+        public OwnerController(DataContext dataContext, CreateMapping createMapping, UpdateMapping updateMapping, ResponseMapping responseMapping, IUserRepository userRepository)
         {
             _dataContext = dataContext;
             _createMapping = createMapping;
             _updateMapping = updateMapping;
+            _responseMapping = responseMapping;
             _userRepository = userRepository;
         }
 
-        [HttpGet]
-        [ProducesResponseType(typeof(OwnerCreateDto), 200)]
-        public async Task<IActionResult> getOwners()
+        [HttpGet("id")]
+        //[ProducesResponseType(typeof(OwnerCreateDto), 200)]
+        public async Task<IActionResult> getOwnerById([FromQuery] string id)
         {
-            var owners = _dataContext.Owners.ToList();
-            return Ok(owners);
+            var owner = _dataContext.Owners.Where(o => o.Id == id).FirstOrDefault();
+
+            if (owner == null)
+            {
+                ModelState.AddModelError("", "Owner doesnt exist");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var newOwner = _responseMapping.ownerResponse(owner);
+            return Ok(newOwner);
         }
 
 
@@ -52,7 +66,10 @@ namespace PayrollManagerAPI.Controllers
 
                 await _userRepository.CreateOwner(newOwner, ownerDto.Password);
 
-                return Ok(newOwner);
+
+                var newResOwner = _responseMapping.ownerResponse(newOwner);
+
+                return Ok(newResOwner);
             }
             catch (Exception ex)
             {
